@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+    purpose: Task5
+    status: Completed
+spec:
+  #replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+      purpose: Task5
+      status: Completed
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: prometheus
+        purpose: Task5
+        status: Completed
+    spec:
+      containers:
+      - name: prometheus
+        image: vimal13/prometheus
+        ports:
+        - containerPort: 9090
+          name: prometheus
+        volumeMounts:
+        - name: prometheus-persistent-storage
+          mountPath: /prometheus
+        - name: prometheus-config
+          mountPath: /etc/prometheus/
+      volumes:
+      - name: prometheus-persistent-storage
+        persistentVolumeClaim:
+          claimName: prometheus-pv-claim
+      - name: prometheus-config
+        configMap:
+          name: prometheus-config
+
+---
+apiVersion: v1  
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pv-claim
+  labels:
+    app: prometheus
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
